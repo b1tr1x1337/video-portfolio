@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Send, Play, Award, Briefcase, Camera, Mail, Clock, Video } from "lucide-react";
+import { ChevronLeft, ChevronRight, Send, Play, Award, Briefcase, Camera, Mail, Clock, Video, Volume2, Scissors, Palette, Sparkles } from "lucide-react";
+import { useSwipeable } from 'react-swipeable';
+import { motion } from 'framer-motion';
 
 // Заглушки для видео (будут заменены на реальные после загрузки)
 const videoSamples = [
@@ -94,7 +96,7 @@ const skills = [
   { name: "Adobe Premiere Pro", level: 87 },
   { name: "Adobe After Effects", level: 55 },
   { name: "DaVinci Resolve", level: 33 },
-  { name: "CapCut", level: 46 },
+  { name: "Motion Design", level: 48 },
   { name: "Цветокоррекция", level: 63 },
   { name: "Аудиомонтаж", level: 75 }
 ];
@@ -102,22 +104,22 @@ const skills = [
 // Услуги
 const services = [
   {
-    icon: <Camera className="w-8 h-8 mb-4 text-blue-400" />,
+    icon: <Scissors className="w-8 h-8 mb-4 text-blue-400" />,
     title: "Монтаж видео",
     description: "Профессиональный монтаж любой сложности из вашего материала"
   },
   {
-    icon: <Play className="w-8 h-8 mb-4 text-blue-400" />,
+    icon: <Palette className="w-8 h-8 mb-4 text-blue-400" />,
     title: "Цветокоррекция",
     description: "Профессиональная цветокоррекция для создания нужной атмосферы"
   },
   {
-    icon: <Briefcase className="w-8 h-8 mb-4 text-blue-400" />,
+    icon: <Sparkles className="w-8 h-8 mb-4 text-blue-400" />,
     title: "Анимация и эффекты",
     description: "Создание визуальных эффектов, анимации текста и графики"
   },
   {
-    icon: <Award className="w-8 h-8 mb-4 text-blue-400" />,
+    icon: <Volume2 className="w-8 h-8 mb-4 text-blue-400" />,
     title: "Аудиомонтаж",
     description: "Работа со звуком, подбор музыки, создание звуковых эффектов"
   }
@@ -129,21 +131,41 @@ export default function Home() {
   const videosPerPage = 3;
   const totalPages = Math.ceil(videoSamples.length / videosPerPage);
 
-  // Для анимации прогресс-баров
+  // Для анимации прогресс-баров только при появлении блока
   const [progress, setProgress] = useState(0);
+  const skillsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let frame: number;
+    let started = false;
     const duration = 1000; // ms
-    const start = performance.now();
-    function animate(now: number) {
-      const prog = Math.min((now - start) / duration, 1);
-      setProgress(prog);
-      if (prog < 1) {
-        frame = requestAnimationFrame(animate);
+    function startAnimation() {
+      if (started) return;
+      started = true;
+      const start = performance.now();
+      function animate(now: number) {
+        const prog = Math.min((now - start) / duration, 1);
+        setProgress(prog);
+        if (prog < 1) {
+          frame = requestAnimationFrame(animate);
+        }
       }
+      frame = requestAnimationFrame(animate);
     }
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          startAnimation();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (skillsRef.current) {
+      observer.observe(skillsRef.current);
+    }
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
   }, []);
 
   const nextPage = () => {
@@ -160,11 +182,63 @@ export default function Home() {
     (currentPage + 1) * videosPerPage
   );
 
+  // Добавляю свайпы для пролистывания видео
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: nextPage,
+    onSwipedRight: prevPage,
+    trackMouse: true
+  });
+
   return (
-    <main className="min-h-screen py-8 px-4 md:px-8 flex flex-col items-center">
+    <main className="min-h-screen py-8 px-4 md:px-8 flex flex-col items-center relative overflow-hidden">
+      {/* Фон с иконками AE, PR, DaVinci */}
+      <div className="pointer-events-none select-none absolute inset-0 -z-10">
+        {/* After Effects Logo (PNG) */}
+        <motion.div
+          className="absolute left-[-20px] top-[7%]"
+          animate={{
+            y: [0, 32, 0, -32, 0],
+            x: [0, 18, 0, -18, 0],
+            scale: [1, 1.08, 1, 0.96, 1]
+          }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Image src="/icons/ae.png" alt="After Effects" width={110} height={110} className="opacity-25 blur-lg rounded-xl" draggable={false} />
+        </motion.div>
+        {/* Premiere Pro Logo (PNG) */}
+        <motion.div
+          className="absolute right-[-20px] top-[13%]"
+          animate={{
+            y: [0, -36, 0, 24, 0],
+            x: [0, -20, 0, 16, 0],
+            scale: [1, 0.94, 1, 1.06, 1]
+          }}
+          transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Image src="/icons/pr.png" alt="Premiere Pro" width={110} height={110} className="opacity-25 blur-lg rounded-xl" draggable={false} />
+        </motion.div>
+        {/* DaVinci Resolve Logo (PNG) */}
+        <motion.div
+          className="absolute left-[8%] top-[32%]"
+          animate={{
+            rotate: [0, 360],
+            y: [0, -10, 0, 10, 0],
+            x: [0, 8, 0, -8, 0]
+          }}
+          transition={{ duration: 34, repeat: Infinity, ease: "linear" }}
+        >
+          <Image src="/icons/davinci.png" alt="DaVinci Resolve" width={110} height={110} className="opacity-25 blur-lg rounded-xl" draggable={false} />
+        </motion.div>
+      </div>
       <div className="w-full max-w-5xl">
         {/* Заголовок */}
-        <div className="glass-card mb-8 p-6 md:p-8 flex items-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, filter: 'blur(8px)' }}
+          whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0 }}
+          viewport={{ once: true }}
+          className="glass-card mb-8 p-6 md:p-8 flex items-center bg-white/30 backdrop-blur-md shadow-lg"
+        >
           <div className="flex-shrink-0 mr-4 relative w-12 h-12 md:w-16 md:h-16">
             <Image
               src="/favicon.ico"
@@ -178,12 +252,17 @@ export default function Home() {
             <h1 className="text-3xl md:text-4xl font-bold mb-2">ВидеоМонтаж</h1>
             <p className="text-gray-300 text-sm md:text-base">Профессиональный видеомонтаж и создание контента</p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Секция "О себе" */}
-        <div className="glass-card mb-8 p-6 md:p-8">
+        {/* Секция "О себе" с гарантированной анимацией */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, filter: 'blur(8px)' }}
+          whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.1 }}
+          viewport={{ once: true }}
+          className="glass-card mb-8 p-6 md:p-8 shadow-lg"
+        >
           <h2 className="text-2xl md:text-3xl font-semibold mb-6">О себе</h2>
-
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-2/3">
               <p className="text-gray-200 mb-4">
@@ -195,7 +274,6 @@ export default function Home() {
               <p className="text-gray-200 mb-6">
                 Каждый проект для меня — это возможность создать что-то уникальное, что будет работать на ваши цели и задачи. Я верю, что хороший видеоролик должен не только выглядеть профессионально, но и вызывать эмоции у зрителей.
               </p>
-
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
                   <Award className="text-yellow-400 w-5 h-5" />
@@ -211,16 +289,35 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-            <div className="md:w-1/3">
+            <div className="md:w-1/3" ref={skillsRef}>
               <h3 className="text-xl font-medium mb-4">Навыки</h3>
               <div className="space-y-4">
                 {skills.map((skill, index) => {
                   const percent = Math.round(skill.level * progress);
+                  let logo = null;
+                  if (skill.name === "Adobe Premiere Pro") {
+                    logo = (
+                      <Image src="/icons/pr.png" alt="Premiere Pro" width={24} height={24} className="w-6 h-6 mr-2 align-middle rounded object-contain" />
+                    );
+                  } else if (skill.name === "Adobe After Effects") {
+                    logo = (
+                      <Image src="/icons/ae.png" alt="After Effects" width={24} height={24} className="w-6 h-6 mr-2 align-middle rounded object-contain" />
+                    );
+                  } else if (skill.name === "DaVinci Resolve") {
+                    logo = (
+                      <Image src="/icons/davinci.png" alt="DaVinci Resolve" width={24} height={24} className="w-6 h-6 mr-2 align-middle rounded object-contain" />
+                    );
+                  } else if (skill.name === "Motion Design") {
+                    logo = <Sparkles className="w-6 h-6 mr-2 align-middle text-blue-300" />;
+                  } else if (skill.name === "Цветокоррекция") {
+                    logo = <Palette className="w-6 h-6 mr-2 align-middle text-blue-300" />;
+                  } else if (skill.name === "Аудиомонтаж") {
+                    logo = <Volume2 className="w-6 h-6 mr-2 align-middle text-blue-300" />;
+                  }
                   return (
                     <div key={`skill-${index}`} className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-gray-200">{skill.name}</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-200 flex items-center">{logo}{skill.name}</span>
                         <span className="text-gray-300">{percent}%</span>
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
@@ -235,10 +332,16 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Услуги */}
-        <div className="glass-card mb-8 p-6 md:p-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, filter: 'blur(8px)' }}
+          whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
+          viewport={{ once: true }}
+          className="glass-card mb-8 p-6 md:p-8 shadow-lg"
+        >
           <h2 className="text-2xl md:text-3xl font-semibold mb-6">Мои услуги</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service, index) => (
@@ -249,14 +352,20 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Галерея видео */}
-        <div className="relative video-container glass-card p-6 md:p-8 mb-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, filter: 'blur(8px)' }}
+          whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.3 }}
+          viewport={{ once: true }}
+          className="relative video-container glass-card p-6 md:p-8 mb-8 shadow-lg"
+        >
           <h2 className="text-2xl md:text-3xl font-semibold mb-6">Примеры работ</h2>
 
           {/* Контейнер для видео */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6" {...swipeHandlers}>
             {currentVideos.map((video) => (
               video.url && video.url !== "#" ? (
                 <a
@@ -351,10 +460,16 @@ export default function Home() {
               />
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Контакты */}
-        <div className="glass-card mb-8 p-6 md:p-8 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, filter: 'blur(8px)' }}
+          whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 0.7, ease: 'easeOut', delay: 0.4 }}
+          viewport={{ once: true }}
+          className="glass-card mb-8 p-6 md:p-8 text-center shadow-lg"
+        >
           <h2 className="text-2xl md:text-3xl font-semibold mb-6">Свяжитесь со мной</h2>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
             Готовы обсудить ваш проект? Напишите мне в Telegram, и я отвечу вам в кратчайшие сроки.
@@ -373,14 +488,14 @@ export default function Home() {
             </a>
 
             <a
-              href="mailto:your_email@example.com"
+              href="mailto:work@b1tr1x.ru"
               className="email-button flex items-center gap-2 bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-all"
             >
               <Mail className="w-5 h-5" />
               <span>Написать на Email</span>
             </a>
           </div>
-        </div>
+        </motion.div>
 
         {/* Футер */}
         <footer className="text-center text-gray-400 text-sm mt-8">
