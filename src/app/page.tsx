@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Send, Play, Award, Briefcase, Camera, Mail, Clock, Video, Volume2, Scissors, Palette, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Send, Play, Award, Briefcase, Camera, Mail, Clock, Video, Volume2, Scissors, Palette, Sparkles, Brain } from "lucide-react";
 import { useSwipeable } from 'react-swipeable';
 import { motion } from 'framer-motion';
 
@@ -28,12 +28,12 @@ const videoSamples = [
   },
   {
     id: 3,
-    title: "Корпоративный видеоролик",
-    description: "Презентация для бизнеса с инфографикой и элементами анимации",
-    category: "Бизнес",
-    duration: "2:15",
+    title: "100 Кругов по МКАД на Каршеринге",
+    description: "Мы решили взять каршеринг и проехать 100 кругов по МКАД",
+    category: "Ютуб",
+    duration: "1:08:42",
     thumbnail: "/images/video3.jpg",
-    url: "#"
+    url: "https://youtu.be/1RQsK3poDRM?si=C4gD7kMITBPJ0qiM"
   },
   {
     id: 4,
@@ -96,9 +96,8 @@ const skills = [
   { name: "Adobe Premiere Pro", level: 87 },
   { name: "Adobe After Effects", level: 55 },
   { name: "DaVinci Resolve", level: 33 },
-  { name: "Motion Design", level: 48 },
-  { name: "Цветокоррекция", level: 63 },
-  { name: "Аудиомонтаж", level: 75 }
+  { name: "Adobe Photoshop", level: 48 },
+  { name: "Unreal Engine 5", level: 23 }
 ];
 
 // Услуги
@@ -119,9 +118,9 @@ const services = [
     description: "Создание визуальных эффектов, анимации текста и графики"
   },
   {
-    icon: <Volume2 className="w-8 h-8 mb-4 text-blue-400" />,
-    title: "Аудиомонтаж",
-    description: "Работа со звуком, подбор музыки, создание звуковых эффектов"
+    icon: <Brain className="w-8 h-8 mb-4 text-blue-400" />,
+    title: "Нейросети",
+    description: "Интеграция нейросетевых инструментов и AI в видеомонтаж"
   }
 ];
 
@@ -137,7 +136,7 @@ export default function Home() {
   useEffect(() => {
     let frame: number;
     let started = false;
-    const duration = 1000; // ms
+    const duration = 2200; // ms
     function startAnimation() {
       if (started) return;
       started = true;
@@ -266,10 +265,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-2/3">
               <p className="text-gray-200 mb-4">
-                Я профессиональный видеомонтажер с более чем 5-летним опытом создания качественного видеоконтента для различных платформ и целей. Моя специализация включает монтаж рекламных роликов, музыкальных клипов, корпоративных презентаций и контента для социальных сетей.
-              </p>
-              <p className="text-gray-200 mb-4">
-                Мой подход к работе основан на тщательном внимании к деталям, пониманию потребностей клиента и созданию историй, которые привлекают внимание аудитории. Я постоянно совершенствую свои навыки, осваивая новые техники и инструменты видеомонтажа.
+                Я профессиональный видеомонтажер с более чем 5-летним опытом создания качественного видеоконтента для различных платформ и целей. Моя специализация включает монтаж рекламных роликов, музыкальных клипов, корпоративных презентаций и контента для социальных сетей. Владею современными инструментами 3D-графики и анимации, а также активно использую нейросетевые технологии (Deep Fake, AI-генерация, автоматизация и ускорение процессов) для достижения уникальных и впечатляющих результатов.
               </p>
               <p className="text-gray-200 mb-6">
                 Каждый проект для меня — это возможность создать что-то уникальное, что будет работать на ваши цели и задачи. Я верю, что хороший видеоролик должен не только выглядеть профессионально, но и вызывать эмоции у зрителей.
@@ -307,12 +303,14 @@ export default function Home() {
                     logo = (
                       <Image src="/icons/davinci.png" alt="DaVinci Resolve" width={24} height={24} className="w-6 h-6 mr-2 align-middle rounded object-contain" />
                     );
-                  } else if (skill.name === "Motion Design") {
-                    logo = <Sparkles className="w-6 h-6 mr-2 align-middle text-blue-300" />;
-                  } else if (skill.name === "Цветокоррекция") {
-                    logo = <Palette className="w-6 h-6 mr-2 align-middle text-blue-300" />;
-                  } else if (skill.name === "Аудиомонтаж") {
-                    logo = <Volume2 className="w-6 h-6 mr-2 align-middle text-blue-300" />;
+                  } else if (skill.name === "Adobe Photoshop") {
+                    logo = (
+                      <Image src="/icons/photoshop.png" alt="Photoshop" width={24} height={24} className="w-6 h-6 mr-2 align-middle rounded object-contain" />
+                    );
+                  } else if (skill.name === "Unreal Engine 5") {
+                    logo = (
+                      <Image src="/icons/unreal.png" alt="Unreal Engine 5" width={24} height={24} className="w-6 h-6 mr-2 align-middle rounded object-contain" />
+                    );
                   }
                   return (
                     <div key={`skill-${index}`} className="space-y-1">
@@ -488,7 +486,7 @@ export default function Home() {
             </a>
 
             <a
-              href="mailto:work@b1tr1x.ru"
+              href="mailto:work@b1tr1x.ru?subject=&body="
               className="email-button flex items-center gap-2 bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-all"
             >
               <Mail className="w-5 h-5" />
